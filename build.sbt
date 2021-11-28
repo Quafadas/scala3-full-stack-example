@@ -2,13 +2,38 @@ ThisBuild / scalaVersion := "3.0.2"
 
 lazy val webpage = project
   .in(file("webpage"))
-  .enablePlugins(ScalaJSPlugin)
+  .enablePlugins(
+    ScalaJSPlugin,
+    ScalaJSBundlerPlugin,
+    ScalablyTypedConverterPlugin
+  )
   .settings(
     scalaJSUseMainModuleInitializer := true,
+    stIgnore += "vega-view",
+    requireJsDomEnv := true,
+    webpackEmitSourceMaps := false, // to keep compile / reload cycle fast
+    webpackDevServerPort := 3000,
+    version in webpack := "4.46.0",
+    version in startWebpackDevServer := "3.11.2",
+    webpackBundlingMode := BundlingMode.LibraryOnly(),
+    webpackDevServerExtraArgs := Seq("--inline"),
+    webpackEmitSourceMaps := false, // to keep compile / reload cycle fast
+    webpackDevServerPort := 3000,
+    webpackConfigFile := Some(baseDirectory.value / "webpack.config.js"),
+    useYarn := true,
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "1.2.0" cross CrossVersion.for3Use2_13
-    )
-  )
+    ),
+  /*   Compile / npmDependencies += "vega-embed" -> "6.18.2",
+    Compile / npmDependencies += "vega" -> "5.19.1",
+    Compile / npmDependencies += "vega-lite" -> "4.17.0",
+    Compile / npmDependencies += "vega-view" -> "5.10.1",
+   */ Compile / npmDevDependencies += "html-webpack-plugin" -> "4.0.0",
+    Compile / npmDevDependencies += "style-loader" -> "2.0.0",
+    Compile / npmDevDependencies += "css-loader" -> "5.0.1",
+    Compile / npmDevDependencies += "mini-css-extract-plugin" -> "1.3.4",
+    Compile / npmDevDependencies += "webpack-merge" -> "4.1.0"
+   )
   .dependsOn(core.js)
 
 lazy val webserver = project
@@ -39,3 +64,11 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
       "org.scalameta" %%% "munit" % "0.7.29" % Test
     )
   )
+
+val scalafixRules = Seq(
+  "OrganizeImports",
+  "DisableSyntax",
+  "LeakingImplicitClassVal",
+  "ProcedureSyntax",
+  "NoValInForComprehension"
+).mkString(" ")
