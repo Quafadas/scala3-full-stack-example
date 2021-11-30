@@ -37,18 +37,24 @@ object DB:
     }
   }
 
-  /* def updateTodo(todo: Todo) = ctx.run {
+  // https://github.com/getquill/protoquill/issues/37
+  def updateTodo(todo: Todo) = ctx.run {
     quote {
-      query[Todo].filter(x => x.todoId == lift(todo.todoId)).update(lift(todo))
+      
+      query[Todo]
+        .insert(todo)
+        .onConflictUpdate(_.todoId)(
+          (t, e) => t.description -> e.description,
+          (t, e) => t.completed -> e.completed
+        )
     }
   }
- */
-  /*
 
-  inline def addTodo(todo: Todo) = ctx.run {
-    query[Todo]
-      .insert(lift(todo))
-      .onConflictIgnore(_.todoId)
-      .returningGenerated(_.todoId)
+  def addTodo(todo: Todo) = ctx.run {
+    quote {
+      query[Todo]
+        .insert(lift(todo))
+        .onConflictIgnore(_.todoId)
+        //.returningGenerated(_.todoId) // https://github.com/getquill/protoquill/issues/22
+    }
   }
-   */

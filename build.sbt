@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion := "3.0.2"
+ThisBuild / scalaVersion := "3.1.0"
 Global / semanticdbEnabled := true
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -7,11 +7,11 @@ lazy val webpage = project
   .enablePlugins(
     ScalaJSPlugin,
     ScalaJSBundlerPlugin,
-    ScalablyTypedConverterPlugin
+    //ScalablyTypedConverterPlugin
   )
   .settings(
     scalaJSUseMainModuleInitializer := true,
-    stIgnore += "vega-view",
+    //stIgnore += "vega-view",
     requireJsDomEnv := true,
     webpackEmitSourceMaps := false, // to keep compile / reload cycle fast
     webpackDevServerPort := 3000,

@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import akka.http.scaladsl.server.{Directives, Route}
 
-import example.shared.Todo
+import example.shared.{Todo, CreateToDo}
 
 object WebServer extends server.Directives with CirceSupport:
   @main def start =
@@ -50,17 +50,13 @@ object WebServer extends server.Directives with CirceSupport:
       pathEnd {
         concat(
           put {
-            entity(as[example.shared.CreateToDo]) { todo =>
-              //complete(Future(DB.addTodo(example.shared.Todo(0, todo.description, todo.completed ))))
-
-              complete(Future(DB.aTodo(1)))
+            entity(as[CreateToDo]) { todo =>
+              complete(Future(DB.addTodo(example.shared.Todo(0, todo.description, todo.completed ))))
             }
           },
           post {
-            entity(as[example.shared.Todo]) { todo =>
-              //  val dbRes = DB.updateTodo(Todo(0, todo.description, todo.completed )
-              //complete(Future(dbRes)))
-              complete(Future(DB.aTodo(1)))
+            entity(as[Todo]) { todo =>
+              complete(DB.updateTodo(todo))              
             }
           },
           get(complete(Future(DB.allTodos())))
