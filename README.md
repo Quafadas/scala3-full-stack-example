@@ -26,3 +26,13 @@ sbt:scala3-full-stack-example> webserver / run
 ```
 
 Then open the http://localhost:8080 page in your favorite browser.
+
+## Process
+* postgres -D /Users/simon/postgresData
+* start sbt
+* two thin clients sbtn
+** Thin client 1 "webserver / ~reStart"
+** Thin client 2 "project webpage" "fastOptJS::startWebpackDevServer" "~fastOptJS::webpack"
+
+At this point, we shoudl have an aggressively reloading webserver, frontend, all connected to a database.
+

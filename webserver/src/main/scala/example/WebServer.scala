@@ -7,6 +7,10 @@ import com.typesafe.config.ConfigFactory
 import java.nio.file.Paths
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import akka.http.scaladsl.server.{Directives, Route}
+
+import example.shared.Todo
 
 object WebServer extends server.Directives with CirceSupport:
   @main def start =
@@ -21,17 +25,53 @@ object WebServer extends server.Directives with CirceSupport:
     val repository = Repository(directory)
     Http()
       .newServerAt(interface, port)
-      .bindFlow(base ~ assets ~ api(repository))
+      .bindFlow(base ~ assets ~ api(repository) ~ todoApi)
     println(s"Server online at http://$interface:$port/")
 
   private val base: server.Route =
     pathSingleSlash(
-      getFromResource("index.html")
+      complete("hi wellt hat's something")
     )
 
   private val assets: server.Route =
     path("assets" / Remaining) { file =>
       getFromResource("assets/" + file)
+    }
+
+  private def hi(): server.Route =
+    path("hi")(
+      get(
+        complete("h")
+      )
+    )
+
+  private def todoApi(using ExecutionContext): Route =
+    pathPrefix("api" / "todo") {
+      pathEnd {
+        concat(
+          put {
+            entity(as[example.shared.CreateToDo]) { todo =>
+              //complete(Future(DB.addTodo(example.shared.Todo(0, todo.description, todo.completed ))))
+
+              complete(Future(DB.aTodo(1)))
+            }
+          },
+          post {
+            entity(as[example.shared.Todo]) { todo =>
+              //  val dbRes = DB.updateTodo(Todo(0, todo.description, todo.completed )
+              //complete(Future(dbRes)))
+              complete(Future(DB.aTodo(1)))
+            }
+          },
+          get(complete(Future(DB.allTodos())))
+        )
+      }
+        ~ path(IntNumber) { id =>
+          concat(
+            get(complete(Future(DB.aTodo(id)))),
+            delete(complete(Future(DB.deleteTodo(id))))
+          )
+        }
     }
 
   private def api(repository: Repository): server.Route =
